@@ -12,7 +12,7 @@ import Login from './components/Login';
 import ProfilePage from './components/ProfilePage';
 import { GoogleOAuthProvider } from '@react-oauth/google'; 
 import PaymentCard from './components/Payment';
-import Contact from './components/contact';
+import Contact from './components/ContactAbout';
 function App() {  
   const [accessToken, setAccessToken] = useState('');  
   const [error, setError] = useState('');  
