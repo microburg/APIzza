@@ -1,6 +1,11 @@
 from django.urls import path, include
 from .views import LoginView, SignupView, google_auth, PizzaViewSet, UserBasicInfoView, PaymentView, ToppingListView, CartViewSet
+from . import views
+from rest_framework.routers import DefaultRouter
+from .views import OfferViewSet
 
+router = DefaultRouter()
+router.register(r'offers', OfferViewSet, basename='offers')
 
 urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
@@ -23,7 +28,8 @@ urlpatterns = [
     path('carts/remove_from_cart/', CartViewSet.as_view({'post': 'remove_from_cart'}), name='cart-remove-from-cart'),
     path('carts/get_cart_items/', CartViewSet.as_view({'get': 'get_cart_items'}), name='cart-items'),
     path('carts/get_total_price/', CartViewSet.as_view({'get': 'get_total_price'}), name='cart-total-price'),
-   
+    path('', views.home, name='home'),
 
-
+ path('api/', include(router.urls)),
 ]
+urlpatterns += router.urls
