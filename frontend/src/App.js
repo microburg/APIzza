@@ -12,7 +12,7 @@ import Login from './components/Login';
 import ProfilePage from './components/ProfilePage';
 import { GoogleOAuthProvider } from '@react-oauth/google'; 
 import PaymentCard from './components/Payment';
-import Contact from './components/ContactAbout';
+import ContactAbout from './components/ContactAbout';
 function App() {  
   const [accessToken, setAccessToken] = useState('');  
   const [error, setError] = useState('');  
@@ -31,7 +31,7 @@ function App() {
             <Route path="/login" element={<Login setAccessToken={setAccessToken} setError={setError} />} />  
             <Route path="/profile" element={<ProfilePage />} />  
             <Route path="/payment" element={<PaymentCard />} /> 
-            <Route path="/contact" element={<Contact/>} /> 
+            <Route path="/contact" element={<ContactAbout/>} /> 
           </Routes>  
         </ConditionalLayout>  
       </Router>  

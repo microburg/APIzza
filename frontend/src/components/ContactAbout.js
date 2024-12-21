@@ -1,5 +1,5 @@
 import React from 'react';
-import './AboutContact.css'; 
+import './ContactAbout.css'; 
 const AboutContact = () => {
   return (
     <div className="about-contact-page">
