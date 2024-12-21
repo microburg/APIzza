@@ -26,7 +26,6 @@ const Layout = ({ children }) => {
             <li><Link to="/customize" onClick={toggleMenu}>Customize Pizza</Link></li>
             <li><Link to="/payment" onClick={toggleMenu}>Payment</Link></li>
             <li><Link to="/profile" onClick={toggleMenu}>Profile</Link></li>
-            <li><Link to="/cart" onClick={toggleMenu}>Cart</Link></li>
             <li><Link to="/login" onClick={toggleMenu}>Login</Link></li>
           </ul>
         </nav>

@@ -6,4 +6,5 @@ google-auth-oauthlib    # For OAuth 2.0 support
 google-auth-httplib2    # For HTTP transport for Google Auth
 djangorestframework-simplejwt  # For JWT authentication
 Pillow
-psycopg[binary,pool]
+psycopg2-binary         # PostgreSQL database adapter
+drf-yasg
