@@ -1,0 +1,48 @@
+name: CI/CD to Azure for APIzza
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Step 2: Log in to Azure
+    - name: Log in to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # Step 3: Log in to Azure Container Registry (ACR)
+    - name: Log in to ACR
+      run: |
+        az acr login --name apizzaregistry
+
+    # Step 4: Build and Push Backend Image
+    - name: Build and Push Backend
+      run: |
+        docker build -t apizzaregistry.azurecr.io/apizzabackend ./backend
+        docker push apizzaregistry.azurecr.io/apizzabackend
+
+    # Step 5: Build and Push Frontend Image
+    - name: Build and Push Frontend
+      run: |
+        docker build -t apizzaregistry.azurecr.io/apizzafrontend ./frontend
+        docker push apizzaregistry.azurecr.io/apizzafrontend
+
+    # Step 6: Deploy to Azure Web App
+    - name: Deploy to Azure
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: apizzaWebApp
+        slot-name: production
+        images: |
+          apizzaregistry.azurecr.io/apizzabackend
+          apizzaregistry.azurecr.io/apizzafrontend
