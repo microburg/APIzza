@@ -14,7 +14,7 @@ class ToppingAdmin(admin.ModelAdmin):
             'fields': ('name', 'price', 'image', 'is_available')
         }),
     )
-   
+    
 
 @admin.register(Offer)
 class OfferAdmin(admin.ModelAdmin):
