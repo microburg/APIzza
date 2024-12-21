@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Payment.css';
-import delivery_img from "../images/delivery.png";
-import dinein_img from '../images/dine-in.png';
-import pickup_img from '../images/pick-up.png';
-import visa_img from '../images/visa.png';
-import cash_img from '../images/cash.png';
+import delivery_img from "../images/delivery.png"
+import dinein_img from '../images/dine-in.png'
+import pickup_img from  '../images/pick-up.png'
+import visa_img from '../images/visa.png'
+import cash_img from '../images/cash.png'
+
 
 const Payment = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -42,22 +43,12 @@ const Payment = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        // Ensure the response is an array
-        if (Array.isArray(response.data)) {
-          setCartItems(response.data);
-        } else {
-          console.error('Expected an array, but got:', response.data);
-          setCartItems([]); 
-        }
+        setCartItems(response.data || []); // Ensure cartItems is always an array
         setIsLoading(false);
       })
       .catch((error) => {
-        if (error.response && error.response.status === 401) {
-          alert('You need to log in first.');
-          navigate('/login');
-        } else {
-          console.error('Error fetching cart items:', error);
-        }
+        console.error('Error fetching cart items:', error);
+        setCartItems([]); // Set cartItems to an empty array on error
         setIsLoading(false);
       });
   };
@@ -165,6 +156,27 @@ const Payment = () => {
     }));
   };
 
+  const handleRemoveFromCart = (item) => {
+    const token = localStorage.getItem('access_token');
+    const endpoint = `http://127.0.0.1:8000/api/carts/remove_from_cart/`;
+    const payload = item?.pizza
+      ? { pizza_id: item?.pizza?.id }
+      : { topping_id: item?.topping?.id };
+
+    axios
+      .post(endpoint, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(() => {
+        fetchCartItems();
+        fetchTotalPrice();
+      })
+      .catch((error) => {
+        console.error('Error removing item from cart:', error);
+        alert('Failed to remove item from cart. Please try again.');
+      });
+  };
+
   const handlePayment = () => {
     const token = localStorage.getItem('access_token');
     
@@ -239,7 +251,7 @@ const Payment = () => {
   return (
     <div className="payment-container">
       <h2>Complete Your Order</h2>
-      {cartItems.length === 0 ? (
+      {Array.isArray(cartItems) && cartItems.length === 0 ? (
         <div className="empty-cart">
           <p>Your cart is empty!</p>
           <p>Add some items before proceeding to payment.</p>
@@ -261,6 +273,12 @@ const Payment = () => {
                       ${parseFloat(item.total_price || 0).toFixed(2)}
                     </span>
                   </div>
+                  <button
+                    className="remove-button"
+                    onClick={() => handleRemoveFromCart(item)}
+                  >
+                    Remove from Cart
+                  </button>
                 </div>
               ))}
             </div>
