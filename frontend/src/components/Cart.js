@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Cart.css';
 
@@ -7,6 +8,7 @@ const Cart = () => {
   const [totalPrice, setTotalPrice] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate(); 
 
   const fetchCartItems = useCallback(() => {
     const token = localStorage.getItem('access_token');
@@ -96,7 +98,7 @@ const Cart = () => {
       alert('Your cart is empty! Add some items before proceeding to checkout.');
       return;
     }
-    alert('Proceeding to checkout!');
+    navigate('/payment');
   };
 
   if (isLoading) {
