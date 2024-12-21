@@ -23,7 +23,6 @@ function App() {
         <ConditionalLayout>  
           <Routes>  
             <Route path="/" element={<Home />} />  
-            <Route path="/cart" element={< Cart />} />  
             <Route path="/admin-orders" element={<AdminOrders />} />  
             <Route path="/menu" element={<Menu />} />  
             <Route path="/customize" element={<CustomizePizza />} />  
