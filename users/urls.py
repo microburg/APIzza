@@ -32,4 +32,4 @@ urlpatterns = [
 
  path('api/', include(router.urls)),
 ]
-urlpatterns += router.urls
+urlpatterns += router.urls  

@@ -303,4 +303,4 @@ class OfferViewSet(viewsets.ModelViewSet):
 
 def home(request):
     offers = Offer.objects.all()
-    return render(request, 'App.html', {'offers': offers})
+    return render(request, 'App.html', {'offers': offers})  

@@ -21,3 +21,4 @@ class OfferAdmin(admin.ModelAdmin):
     list_display = ('name', 'discount_percentage', 'is_active', 'start_date', 'end_date')
     search_fields = ('name',)
     list_filter = ('is_active',)
+ 

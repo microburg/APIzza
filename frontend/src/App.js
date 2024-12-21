@@ -41,7 +41,7 @@ function App() {
     }
   };
 
-  return (
+  return ( 
     <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
       <Router>
         <Navbar /> {/* Add the Navbar here */}
