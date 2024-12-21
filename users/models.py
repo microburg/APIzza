@@ -72,7 +72,6 @@ class CartItem(models.Model):
             total_price += self.quantity * self.topping.price  
         return total_price
 
-
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -85,3 +84,22 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
+    
+class VisaCard(models.Model):
+    card_number = models.CharField(max_length=16, unique=True)
+    expiry_date = models.CharField(max_length=5)  # MM/YY
+    cvv = models.CharField(max_length=3)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+
+    def __str__(self):
+        return f"VisaCard {self.card_number} - Balance: ${self.balance}"
+
+class Feedback(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    message = models.TextField()
+    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])  # Rating from 1 to 5
+
+    def __str__(self):
+        return self.name
+

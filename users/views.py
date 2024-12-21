@@ -15,7 +15,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import viewsets 
 
 from rest_framework.permissions import IsAuthenticated
-from .serializers import UserBasicInfoSerializer
+from .serializers import UserBasicInfoSerializer,FeedbackSerializer
 
  
 from .models import Pizza  
@@ -109,12 +109,14 @@ def google_auth(request):
         return Response({'success': False, 'error': 'Something went wrong'}, status=500)
 
 
+from decimal import Decimal, InvalidOperation
+from .models import VisaCard
+
 class PaymentView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         data = request.data
-
         service_type = data.get('service_type')  # Dine In, Delivery, or Pick Up
         payment_method = data.get('payment_method')  # Cash or Visa
         amount = data.get('amount')
@@ -125,6 +127,12 @@ class PaymentView(APIView):
         # Basic validations
         if not service_type or not payment_method or not amount:
             return Response({"success": False, "message": "All fields are required"}, status=400)
+
+        # Convert amount to Decimal
+        try:
+            amount = Decimal(str(amount))  # Convert to Decimal from string
+        except InvalidOperation:
+            return Response({"success": False, "message": "Invalid amount format"}, status=400)
 
         # Create payment object
         payment = Payment(
@@ -138,14 +146,22 @@ class PaymentView(APIView):
             if not card_number or not expiry_date or not cvv:
                 return Response({"success": False, "message": "Card details are required for Visa payment"}, status=400)
 
-            # Example Visa validation logic (can be replaced with real validation)
-            if len(card_number) == 16 and len(cvv) == 3:
+            # Check if the card exists
+            try:
+                visa_card = VisaCard.objects.get(card_number=card_number, expiry_date=expiry_date, cvv=cvv)
+            except VisaCard.DoesNotExist:
+                return Response({"success": False, "message": "Invalid card details"}, status=400)
+
+            # Check if the balance is sufficient
+            if visa_card.balance >= amount:
+                visa_card.balance -= amount  # Deduct the amount from the card's balance
+                visa_card.save()  # Save the updated balance
                 payment.card_number = card_number
                 payment.expiry_date = expiry_date
                 payment.cvv = cvv
                 payment.payment_status = "Successful"
             else:
-                return Response({"success": False, "message": "Invalid card details"}, status=400)
+                return Response({"success": False, "message": "Insufficient balance on the card"}, status=400)
 
         elif payment_method == "Cash":
             payment.payment_status = "Pending"
@@ -326,8 +342,7 @@ class CartViewSet(viewsets.ModelViewSet):
         cart, _ = Cart.objects.get_or_create(user=request.user)
         total = sum([item.total_price() for item in CartItem.objects.filter(cart=cart)])
         return Response({"total_price": str(total)}, status=status.HTTP_200_OK)
-
-
+      
 
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -367,3 +382,11 @@ def user_profile(request):
 
         return Response({'message': 'Profile updated successfully.'}, status=status.HTTP_200_OK)
 
+@api_view(['POST'])
+def submit_feedback(request):
+    if request.method == 'POST':
+        serializer = FeedbackSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
