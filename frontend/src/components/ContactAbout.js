@@ -1,7 +1,5 @@
 import React from 'react';
 import './AboutContact.css'; 
-import { FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
-
 const AboutContact = () => {
   return (
     <div className="about-contact-page">
@@ -30,11 +28,14 @@ const AboutContact = () => {
       {/* Contact Section */}
       <section className="contact-section">
         <h2>Contact Us</h2>
-        <p>We'd love to hear from you! If you have any questions, feedback, or concerns, feel free to reach out to us:</p>
+        <p>
+          We’d love to hear from you! If you have any questions, feedback, or concerns,
+          feel free to reach out to us:
+        </p>
         <div className="contact-info">
-          <p><FaPhone /> <strong>Phone:</strong> (555) 123-4567</p>
-          <p><FaEnvelope /> <strong>Email:</strong> info@apizza.com</p>
-          <p><FaMapMarkerAlt /> <strong>Address:</strong> 123 Pizza St., Food City</p>
+          <p>📞 <strong>Phone:</strong> (555) 123-4567</p>
+          <p>✉️ <strong>Email:</strong> info@apizza.com</p>
+          <p>📍 <strong>Address:</strong> 123 Pizza St., Food City</p>
         </div>
         <p>
           Visit our website to explore our menu, customize your pizza, and place your
