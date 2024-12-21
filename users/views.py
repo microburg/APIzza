@@ -343,11 +343,10 @@ class CartViewSet(viewsets.ModelViewSet):
         total = sum([item.total_price() for item in CartItem.objects.filter(cart=cart)])
         return Response({"total_price": str(total)}, status=status.HTTP_200_OK)
 
-@api_view(['POST'])
-def submit_feedback(request):
-    if request.method == 'POST':
+class FeedbackView(APIView):
+    def post(self, request):
         serializer = FeedbackSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({"message": "Feedback submitted successfully!"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

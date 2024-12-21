@@ -82,10 +82,11 @@ class VisaCard(models.Model):
         return f"VisaCard {self.card_number} - Balance: ${self.balance}"
 
 class Feedback(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=100)
     email = models.EmailField()
-    message = models.TextField()
-    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])  # Rating from 1 to 5
+    feedback = models.TextField()
+    rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])  # 1-5 star rating
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.rating} Stars"
