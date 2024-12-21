@@ -1,0 +1,98 @@
+.feedback-page {
+    padding: 20px;
+    max-width: 600px;
+    margin: auto;
+    background-color: #ffffff; 
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-family: 'Arial', sans-serif;
+    color: #ff5722; 
+  }
+  
+  .feedback-page h2 {
+    font-size: 2rem;
+    color: #ff5722; 
+    text-align: center;
+  }
+  
+  .feedback-page p {
+    margin-bottom: 20px;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #ff5722; 
+    text-align: center;
+  }
+  
+  .feedback-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .feedback-form label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #ff5722; 
+  }
+  
+  .feedback-form input,
+  .feedback-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ff5722; 
+    border-radius: 5px;
+    font-size: 1rem;
+    background-color: #ffffff; 
+  }
+  
+  .feedback-form textarea {
+    resize: none;
+  }
+  
+  .feedback-form input:focus,
+  .feedback-form textarea:focus {
+    border-color: #e64a19; 
+    outline: none;
+    box-shadow: 0 0 3px #e64a19;
+  }
+  
+  .star-rating {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 20px;
+    justify-content: center;
+  }
+  
+  .star {
+    font-size: 2rem;
+    color: #ccc; 
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  
+  .star.selected {
+    color: #ff5722; 
+  }
+  
+  .feedback-form button {
+    padding: 10px 15px;
+    background-color: #ff5722;
+    color: #ffffff; 
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .feedback-form button:hover {
+    background-color: #e64a19; 
+  }
+  
+  .message {
+    font-size: 1rem;
+    margin-bottom: 20px;
+    color: #e64a19; 
+    text-align: center;
+  }
+  
