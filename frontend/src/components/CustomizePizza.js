@@ -83,7 +83,7 @@ const PizzaCustomizer = () => {
   };
 
   const handleGoToCart = () => {
-    navigate('/cart');
+    navigate('/payment');
   };
 
   return (
@@ -141,7 +141,7 @@ const PizzaCustomizer = () => {
                 onClick={handleGoToCart}
                 className="button button-secondary"
               >
-                Go to Cart
+                Go to Payment
               </button>
             </div>
           </div>
