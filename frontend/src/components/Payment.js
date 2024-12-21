@@ -6,6 +6,7 @@ import dinein_img from '../images/dine-in.png'
 import pickup_img from  '../images/pick-up.png'
 import visa_img from '../images/visa.png'
 import cash_img from '../images/cash.png'
+
 const Payment = () => {
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -31,11 +32,12 @@ const Payment = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        setCartItems(response.data);
+        setCartItems(response.data || []); // Ensure cartItems is always an array
         setIsLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching cart items:', error);
+        setCartItems([]); // Set cartItems to an empty array on error
         setIsLoading(false);
       });
   };
@@ -48,6 +50,27 @@ const Payment = () => {
       })
       .then((response) => setTotalPrice(response.data.total_price))
       .catch((error) => console.error('Error fetching total price:', error));
+  };
+
+  const handleRemoveFromCart = (item) => {
+    const token = localStorage.getItem('access_token');
+    const endpoint = `http://127.0.0.1:8000/api/carts/remove_from_cart/`;
+    const payload = item?.pizza
+      ? { pizza_id: item?.pizza?.id }
+      : { topping_id: item?.topping?.id };
+
+    axios
+      .post(endpoint, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(() => {
+        fetchCartItems();
+        fetchTotalPrice();
+      })
+      .catch((error) => {
+        console.error('Error removing item from cart:', error);
+        alert('Failed to remove item from cart. Please try again.');
+      });
   };
 
   const handlePayment = () => {
@@ -110,7 +133,7 @@ const Payment = () => {
   return (
     <div className="payment-container">
       <h2>Complete Your Order</h2>
-      {cartItems.length === 0 ? (
+      {Array.isArray(cartItems) && cartItems.length === 0 ? (
         <div className="empty-cart">
           <p>Your cart is empty!</p>
           <p>Add some items before proceeding to payment.</p>
@@ -120,7 +143,7 @@ const Payment = () => {
           <div className="order-summary-section">
             <h3>Order Summary</h3>
             <div className="cart-items-list">
-              {cartItems.map((item) => (
+              {Array.isArray(cartItems) && cartItems.map((item) => (
                 <div key={item.id} className="cart-item">
                   <div className="cart-item-details">
                     <span className="item-name">
@@ -132,6 +155,12 @@ const Payment = () => {
                       ${parseFloat(item.total_price || 0).toFixed(2)}
                     </span>
                   </div>
+                  <button
+                    className="remove-button"
+                    onClick={() => handleRemoveFromCart(item)}
+                  >
+                    Remove from Cart
+                  </button>
                 </div>
               ))}
             </div>
