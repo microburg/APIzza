@@ -29,8 +29,11 @@ from .models import Cart, CartItem, Topping
 from .serializers import CartSerializer, CartItemSerializer, ToppingSerializer
 
 from .models import Payment
+from django.shortcuts import render
 
-
+from rest_framework import viewsets
+from .models import Offer
+from .serializers import OfferSerializer
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -291,3 +294,13 @@ class CartViewSet(viewsets.ModelViewSet):
         cart, _ = Cart.objects.get_or_create(user=request.user)
         total = sum([item.total_price() for item in CartItem.objects.filter(cart=cart)])
         return Response({"total_price": str(total)}, status=status.HTTP_200_OK)
+
+
+
+class OfferViewSet(viewsets.ModelViewSet):
+    queryset = Offer.objects.all()
+    serializer_class = OfferSerializer
+
+def home(request):
+    offers = Offer.objects.all()
+    return render(request, 'App.html', {'offers': offers})  

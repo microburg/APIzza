@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Pizza
 from django.contrib.auth.models import User
 from .models import Cart, CartItem, Topping
-
+from .models import Offer
 # Serializer for Pizza model
 class PizzaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -46,3 +46,11 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ['id', 'user', 'created_at', 'items']
+
+
+
+class OfferSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Offer
+        fields = '__all__'
+  

@@ -64,3 +64,17 @@ class CartItem(models.Model):
 
     def total_price(self):
         return self.quantity * self.topping.price
+    
+   
+
+class Offer(models.Model):
+    name = models.CharField(max_length=100)  
+    description = models.TextField()         
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2)  
+    start_date = models.DateField()          
+    end_date = models.DateField()            
+    is_active = models.BooleanField(default=True) 
+
+    def __str__(self):
+        return self.name
+  
