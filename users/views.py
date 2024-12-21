@@ -249,38 +249,36 @@ class CartViewSet(viewsets.ModelViewSet):
             logging.error(f"User not authenticated: {request.user}")
             return Response({"detail": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # Validate input
-        topping_id = request.data.get('topping_id')
         pizza_id = request.data.get('pizza_id')
+        pizza_name = request.data.get('pizza_name')
+        toppings_description = request.data.get('toppings_description')
         quantity = int(request.data.get('quantity', 1))
 
         cart, _ = Cart.objects.get_or_create(user=request.user)
 
-        if topping_id:
-            try:
-                topping = Topping.objects.get(id=topping_id)
-                cart_item, created = CartItem.objects.get_or_create(
-                    cart=cart, topping=topping,
-                    defaults={'quantity': quantity}
-                )
-            except Topping.DoesNotExist:
-                return Response({"detail": "Topping not found"}, status=status.HTTP_404_NOT_FOUND)
-        elif pizza_id:
+        if pizza_id:
             try:
                 pizza = Pizza.objects.get(id=pizza_id)
-                cart_item, created = CartItem.objects.get_or_create(
-                    cart=cart, pizza=pizza,
-                    defaults={'quantity': quantity}
-                )
             except Pizza.DoesNotExist:
                 return Response({"detail": "Pizza not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            cart_item, created = CartItem.objects.get_or_create(cart=cart, pizza=pizza)
+            if not created:
+                cart_item.quantity += quantity
+            else:
+                cart_item.quantity = quantity
+            cart_item.save()
+        elif pizza_name and toppings_description:
+            cart_item, created = CartItem.objects.get_or_create(
+                cart=cart, pizza_name=pizza_name, toppings_description=toppings_description
+            )
+            if not created:
+                cart_item.quantity += quantity
+            else:
+                cart_item.quantity = quantity
+            cart_item.save()
         else:
             return Response({"detail": "Invalid item type"}, status=status.HTTP_400_BAD_REQUEST)
-
-        if not created:
-            # Update quantity if the item already exists
-            cart_item.quantity += quantity
-            cart_item.save()
 
         return Response(CartItemSerializer(cart_item).data, status=status.HTTP_201_CREATED)
 
@@ -289,16 +287,18 @@ class CartViewSet(viewsets.ModelViewSet):
         cart, _ = Cart.objects.get_or_create(user=request.user)
         topping_id = request.data.get('topping_id')
         pizza_id = request.data.get('pizza_id')
+        pizza_name = request.data.get('pizza_name')
+        toppings_description = request.data.get('toppings_description')
 
         try:
             if topping_id:
-                # Remove topping from cart
                 topping = Topping.objects.get(id=topping_id)
                 cart_item = CartItem.objects.get(cart=cart, topping=topping)
             elif pizza_id:
-                # Remove pizza from cart
                 pizza = Pizza.objects.get(id=pizza_id)
                 cart_item = CartItem.objects.get(cart=cart, pizza=pizza)
+            elif pizza_name and toppings_description:
+                cart_item = CartItem.objects.get(cart=cart, pizza_name=pizza_name, toppings_description=toppings_description)
             else:
                 return Response({"detail": "Invalid item type"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -313,36 +313,21 @@ class CartViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def get_cart_items(self, request):
         try:
-            # Log the incoming request
-            logging.info(f"Fetching cart items for user: {request.user.username}")
-            
-            # Get or create the cart for the user
             cart, created = Cart.objects.get_or_create(user=request.user)
-            logging.info(f"Cart retrieved: {cart.id}, Created: {created}")
-            
-            # Fetch cart items
             items = CartItem.objects.filter(cart=cart)
             if not items:
-                logging.info("Cart is empty")
                 return Response({"message": "Your cart is empty"}, status=status.HTTP_200_OK)
-
-            # Serialize cart items
             serializer = CartItemSerializer(items, many=True)
-            logging.info(f"Serialized cart items: {serializer.data}")
-
             return Response(serializer.data)
         except Exception as e:
-            logging.error(f"Error in get_cart_items: {str(e)}")
             return Response({"error": "Failed to load cart items"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
     @action(detail=False, methods=['get'])
     def get_total_price(self, request):
-        # Calculate the total price of items in the cart
         cart, _ = Cart.objects.get_or_create(user=request.user)
         total = sum([item.total_price() for item in CartItem.objects.filter(cart=cart)])
         return Response({"total_price": str(total)}, status=status.HTTP_200_OK)
-      
+
 
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser

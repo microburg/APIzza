@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Payment.css';
-import delivery_img from "../images/delivery.png"
-import dinein_img from '../images/dine-in.png'
-import pickup_img from  '../images/pick-up.png'
-import visa_img from '../images/visa.png'
-import cash_img from '../images/cash.png'
-
+import delivery_img from "../images/delivery.png";
+import dinein_img from '../images/dine-in.png';
+import pickup_img from '../images/pick-up.png';
+import visa_img from '../images/visa.png';
+import cash_img from '../images/cash.png';
 
 const Payment = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -43,12 +42,12 @@ const Payment = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        setCartItems(response.data || []); // Ensure cartItems is always an array
+        setCartItems(response.data || []); 
         setIsLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching cart items:', error);
-        setCartItems([]); // Set cartItems to an empty array on error
+        setCartItems([]); 
         setIsLoading(false);
       });
   };
@@ -59,7 +58,7 @@ const Payment = () => {
       .get('http://127.0.0.1:8000/api/carts/get_total_price/', {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((response) => setTotalPrice(response.data.total_price))
+      .then((response) => setTotalPrice(parseFloat(response.data.total_price || 0).toFixed(2)))
       .catch((error) => {
         if (error.response && error.response.status === 401) {
           alert('You need to log in first.');
@@ -161,7 +160,11 @@ const Payment = () => {
     const endpoint = `http://127.0.0.1:8000/api/carts/remove_from_cart/`;
     const payload = item?.pizza
       ? { pizza_id: item?.pizza?.id }
-      : { topping_id: item?.topping?.id };
+      : item?.topping
+      ? { topping_id: item?.topping?.id }
+      : item?.pizza_name && item?.toppings_description
+      ? { pizza_name: item?.pizza_name, toppings_description: item?.toppings_description }
+      : {};
 
     axios
       .post(endpoint, payload, {
@@ -180,7 +183,6 @@ const Payment = () => {
   const handlePayment = () => {
     const token = localStorage.getItem('access_token');
     
-    // Validate all fields before submission
     if (paymentMethod === 'Visa') {
       const cardNumberError = validateCardNumber(cardDetails.card_number);
       const monthError = validateExpiryMonth(cardDetails.expiryMonth);
@@ -265,9 +267,13 @@ const Payment = () => {
                 <div key={item.id} className="cart-item">
                   <div className="cart-item-details">
                     <span className="item-name">
-                      {item.pizza
+                      {item.pizza_name
+                        ? `${item.quantity} × ${item.pizza_name} (${item.toppings_description})`
+                        : item.pizza
                         ? `${item.quantity} × ${item.pizza.name}`
-                        : `${item.quantity} × ${item.topping.name}`}
+                        : item.topping
+                        ? `${item.quantity} × ${item.topping.name}`
+                        : `${item.quantity} × Item details not available`}
                     </span>
                     <span className="item-price">
                       ${parseFloat(item.total_price || 0).toFixed(2)}

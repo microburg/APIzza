@@ -18,7 +18,6 @@ const Cart = () => {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
-        // Ensure response data is always an array
         setCartItems(Array.isArray(response.data) ? response.data : []);
         setIsLoading(false);
         setErrorMessage('');
@@ -54,7 +53,7 @@ const Cart = () => {
     const token = localStorage.getItem('access_token');
     const endpoint = `http://127.0.0.1:8000/api/carts/add_to_cart/`;
     const payload = {
-      quantity: item?.quantity || 1, // Default to 1 if quantity is null
+      quantity: item?.quantity || 1,
       ...(type === 'pizza' ? { pizza_id: item?.id } : { topping_id: item?.id }),
     };
 
@@ -77,7 +76,11 @@ const Cart = () => {
     const endpoint = `http://127.0.0.1:8000/api/carts/remove_from_cart/`;
     const payload = item?.pizza
       ? { pizza_id: item?.pizza?.id }
-      : { topping_id: item?.topping?.id };
+      : item?.topping
+      ? { topping_id: item?.topping?.id }
+      : item?.pizza_name && item?.toppings_description
+      ? { pizza_name: item?.pizza_name, toppings_description: item?.toppings_description }
+      : {};
 
     axios
       .post(endpoint, payload, {
@@ -125,7 +128,9 @@ const Cart = () => {
               <div key={item?.id || Math.random()} className="cart-item">
                 <div className="cart-item-details">
                   <span className="item-name">
-                    {item?.pizza
+                    {item?.pizza_name
+                      ? `${item?.quantity || 0} x ${item?.pizza_name} (${item?.toppings_description})`
+                      : item?.pizza
                       ? `${item?.quantity || 0} x ${item?.pizza?.name || 'Unknown Pizza'}`
                       : item?.topping
                       ? `${item?.quantity || 0} x ${item?.topping?.name || 'Unknown Topping'}`

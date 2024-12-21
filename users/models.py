@@ -59,9 +59,11 @@ class CartItem(models.Model):
     topping = models.ForeignKey(Topping, null=True, blank=True, on_delete=models.CASCADE)   
     pizza = models.ForeignKey(Pizza, null=True, blank=True, on_delete=models.CASCADE)     
     quantity = models.PositiveIntegerField(default=1)  
+    pizza_name = models.CharField(max_length=100, blank=True, null=True)  
+    toppings_description = models.TextField(blank=True, null=True)  
 
     def __str__(self):  
-        item_name = self.pizza.name if self.pizza else self.topping.name if self.topping else 'Unknown Item'  
+        item_name = self.pizza_name if self.pizza_name else self.pizza.name if self.pizza else self.topping.name if self.topping else 'Unknown Item'  
         return f"{self.quantity} x {item_name}"  
 
     def total_price(self):  
@@ -70,6 +72,11 @@ class CartItem(models.Model):
             total_price += self.quantity * self.pizza.price  
         if self.topping:  
             total_price += self.quantity * self.topping.price  
+        if self.pizza_name and self.toppings_description:
+            topping_names = self.toppings_description.split(', ')
+            toppings = Topping.objects.filter(name__in=topping_names)
+            for topping in toppings:
+                total_price += self.quantity * topping.price
         return total_price
 
 from django.db import models
@@ -102,4 +109,3 @@ class Feedback(models.Model):
 
     def __str__(self):
         return self.name
-

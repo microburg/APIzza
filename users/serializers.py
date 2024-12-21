@@ -25,32 +25,28 @@ class PizzaSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-# User Serializer (Basic Info)
 class UserBasicInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email']
 
-# Topping Serializer
 class ToppingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Topping
         fields = ['id', 'name', 'price', 'image']
 
-# Cart Item Serializer
 class CartItemSerializer(serializers.ModelSerializer):
-    pizza = PizzaSerializer(read_only=True) 
-    topping = ToppingSerializer(read_only=True)  
+    pizza = PizzaSerializer(read_only=True)
+    topping = ToppingSerializer(read_only=True)
     total_price = serializers.SerializerMethodField()
 
     class Meta:
         model = CartItem
-        fields = ['id', 'pizza', 'topping', 'quantity', 'total_price']
+        fields = ['id', 'pizza', 'topping', 'quantity', 'total_price', 'pizza_name', 'toppings_description']  # Include new fields
 
     def get_total_price(self, obj):
-        return str(obj.total_price())  
+        return str(obj.total_price())
 
-# Cart Serializer
 class CartSerializer(serializers.ModelSerializer):
     items = CartItemSerializer(many=True, read_only=True)  
 

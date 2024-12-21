@@ -11,7 +11,6 @@ const PizzaCustomizer = () => {
     axios.get('http://127.0.0.1:8000/api/toppings/')
       .then(response => setToppings(response.data))
       .catch(error => {
-        // If fetching toppings fails, handle it
         if (error.response && error.response.status === 401) {
           alert('You need to log in to customize your pizza.');
           navigate('/login');  
@@ -52,33 +51,31 @@ const PizzaCustomizer = () => {
       return;
     }
 
-    try {
-      for (const topping of selectedToppings) {
-        await axios.post(
-          `http://127.0.0.1:8000/api/carts/add_to_cart/`,
-          { topping_id: topping.id, quantity: 1 },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`, 
-            },
-          }
-        );
-      }
-      console.log('All toppings added to cart successfully');
-      alert('Items added to cart successfully!');
-    } catch (error) {
-      console.error('Error adding toppings to cart:', error.response ? error.response : error.message);
+    const toppingsDescription = selectedToppings.map(topping => topping.name).join(', ');
 
-      if (error.response) {
-        if (error.response.status === 401) {
-          alert('You need to log in first.');
-          navigate('/login');
-        } else {
-          alert('Failed to add items to cart. Please try again.');
+    const payload = {
+      pizza_name: 'Special Pizza',
+      toppings_description: toppingsDescription,
+      quantity: 1
+    };
+
+    console.log('Payload:', payload); 
+
+    try {
+      await axios.post(
+        `http://127.0.0.1:8000/api/carts/add_to_cart/`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
         }
-      } else {
-        alert('Failed to add items to cart. Please check your network or try again later.');
-      }
+      );
+      alert('Pizza added to cart successfully!');
+    } catch (error) {
+      console.error('Error adding pizza to cart:', error);
+      alert('Failed to add pizza to cart. Please try again.');
     }
   };
 
