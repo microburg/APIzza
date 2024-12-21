@@ -1,4 +1,4 @@
-name: CI
+name: Django CI
 
 on:
   push:
@@ -7,37 +7,63 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_DB: apizza_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 123
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+    - name: Check out code
+      uses: actions/checkout@v3
 
-      # Python backend setup
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
 
-      - name: Install Python dependencies
-        run: |
-          pip install --upgrade pip
-          pip install -r APIzza/requirements.txt
+    - name: Install dependencies
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install -r APIzza/requirements.txt
 
-      - name: Run Django Tests
-        run: |
-          cd APIzza
-          python manage.py test
+    - name: Run migrations
+      run: |
+        source venv/bin/activate
+        python APIzza/manage.py migrate
 
-      # Node/React frontend setup
-      - name: Set up Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
+    - name: Run tests
+      run: |
+        source venv/bin/activate
+        python APIzza/manage.py test
 
-      - name: Install and test frontend
-        run: |
-          cd APIzza/frontend
-          npm install
-          npm test -- --watchAll=false
+    - name: Collect coverage
+      run: |
+        source venv/bin/activate
+        pip install coverage
+        coverage run --source='.' APIzza/manage.py test
+        coverage report
+        coverage xml
+      continue-on-error: true
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
