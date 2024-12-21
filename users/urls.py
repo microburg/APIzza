@@ -1,4 +1,7 @@
 from django.urls import path, include
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
 from .views import (
     LoginView,
     SignupView,
@@ -10,11 +13,24 @@ from .views import (
     CartViewSet,
     user_profile,  # Import the new profile view
 )
-from .views import LoginView, SignupView, google_auth, PizzaViewSet, UserBasicInfoView, PaymentView, ToppingListView, CartViewSet
 from .import views
 
+schema_view = get_schema_view(
+    openapi.Info(
+        title="APIzza API",
+        default_version='v1',
+        description="API documentation for APIzza",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="contact@apizza.local"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('login/', LoginView.as_view(), name='login'),
     path('signup/', SignupView.as_view(), name='signup'),
     path('api/auth/google/', google_auth, name='google_auth'),
